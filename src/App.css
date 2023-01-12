@@ -30,8 +30,25 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin: 10px;
+}
+
+button:hover{
+  background-color: #fb8a8a;
+}
+
+button:active {
+  background-color: #fb8a8a;
+  transform: translateY(2px);
 }
 
 .center {
   text-align: center;
+}
+
+.noProduct{
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  font-size:1.5rem;
 }

@@ -1,17 +1,54 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { type Product } from "../../interfaces/products";
+import Swal from "sweetalert2";
 
 export default function Cart() {
   const [products, setProducts] = useState(
-    JSON.parse(localStorage.getItem("products") ?? "[]")
+    JSON.parse(localStorage.getItem("products_cart") ?? "[]")
   );
 
+  const [nItem, setNum] = useState(
+    Number(JSON.parse(localStorage.getItem("n_item") ?? "[]"))
+  );
+
+  const deleteProducts = (product: Product) => {
+    const newProducts = products.filter(
+      (productO: Product) => productO.id !== product.id
+    );
+    setProducts(newProducts);
+    setNum(nItem - 1);
+    Swal.fire({
+      position: 'bottom-end',
+      icon: 'success',
+      title: '¡Eliminado!',
+      showConfirmButton: false,
+      background: '#242424',
+      color: "#fff",
+      timer: 1250
+    })
+  };
+  const [pay, setPay] = useState(false);
+  const navigate = useNavigate();
+
+  const dataFetchedRef = useRef(false);
+
   useEffect(() => {
+    products.length == 0
+      ? localStorage.removeItem("products_cart")
+      : localStorage.setItem("products_cart", JSON.stringify(products));
+    localStorage.setItem("n_item", JSON.stringify(nItem));
+  }, [products]);
+
+  useEffect(() => {
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
     const mp = new MercadoPago("TEST-37b0aa8b-93a4-4943-91e4-6a24e05f2fa7", {
       ale: "es",
     });
     const bricksBuilder = mp.bricks();
-    const renderCardPaymentBrick = async (bricksBuilder) => {
+    const renderCardPaymentBrick = async (bricksBuilder: any) => {
       const settings = {
         initialization: {
           amount: 100, // monto a ser pago
@@ -65,10 +102,23 @@ export default function Cart() {
     renderCardPaymentBrick(bricksBuilder);
   }, []);
 
+  const handleClick = () => {
+    navigate("/");
+  };
+
+  const hidePay = () => {
+    pay ? setPay(false) : setPay(true);
+  };
   return (
     <div>
       <h1 className="center">Carrito de compras</h1>
-      <button>Pagar</button>
+      <button onClick={handleClick} type="button">
+        Retornar
+      </button>
+      {products.length != 0 ? <button onClick={hidePay}>Pagar</button> : null}
+      {products.length == 0 ? (
+        <div className="noProduct">No hay productos añadidos</div>
+      ) : null}
       <div className="products">
         {products.map((product: Product) => (
           <div className="card__product" key={product.id}>
@@ -76,10 +126,14 @@ export default function Cart() {
             <h2>{product.name}</h2>
             <p>{product.description}</p>
             <p>$ {product.price}</p>
+            <button onClick={() => deleteProducts(product)}>Delete</button>
           </div>
         ))}
       </div>
-      <div id="cardPaymentBrick_container"></div>
+      <div
+        id="cardPaymentBrick_container"
+        style={{ display: pay ? "block" : "none" }}
+      ></div>
     </div>
   );
 }
