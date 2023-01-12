@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { type Product } from "../../interfaces/products";
+import { Header } from "../../components";
 import Swal from "sweetalert2";
 
 export default function Cart() {
@@ -11,6 +11,12 @@ export default function Cart() {
   const [nItem, setNum] = useState(
     Number(JSON.parse(localStorage.getItem("n_item") ?? "[]"))
   );
+
+  const [total, setTotal] = useState(0);
+
+  const [pay, setPay] = useState(false);
+
+  const dataFetchedRef = useRef(false);
 
   const deleteProducts = (product: Product) => {
     const newProducts = products.filter(
@@ -28,10 +34,14 @@ export default function Cart() {
       timer: 1250,
     });
   };
-  const [pay, setPay] = useState(false);
-  const navigate = useNavigate();
 
-  const dataFetchedRef = useRef(false);
+  useEffect(() => {
+    const sum = products.reduce(
+      (acc: number, product: Product) => acc + product.price,
+      0
+    );
+    setTotal(sum);
+  }, []);
 
   useEffect(() => {
     if (products.length == 0) {
@@ -83,7 +93,7 @@ export default function Cart() {
               })
                 .then((response) => {
                   // recibir el resultado del pago
-                  console.log(response)
+                  console.log(response);
                   resolve();
                 })
                 .catch((error) => {
@@ -106,38 +116,56 @@ export default function Cart() {
     renderCardPaymentBrick(bricksBuilder);
   }, []);
 
-  const handleClick = () => {
-    navigate("/");
-  };
-
   const hidePay = () => {
     pay ? setPay(false) : setPay(true);
   };
   return (
-    <div>
-      <h1 className="center">Carrito de compras</h1>
-      <button onClick={handleClick} type="button">
-        Retornar
-      </button>
-      {products.length != 0 ? <button onClick={hidePay}>Pagar</button> : null}
-      {products.length == 0 ? (
-        <div className="noProduct">No hay productos añadidos</div>
-      ) : null}
-      <div className="products">
-        {products.map((product: Product) => (
-          <div className="card__product" key={product.id}>
-            <img src={product.image} alt="" />
-            <h2>{product.name}</h2>
-            <p>{product.description}</p>
-            <p>$ {product.price}</p>
-            <button onClick={() => deleteProducts(product)}>Delete</button>
+    <>
+      <Header />
+      <div className="container mt-3">
+        <h1 className="center">Carrito de compras</h1>
+        {products.length === 0 && (
+          <div className="noProduct">No hay productos añadidos</div>
+        )}
+        <div className="row mt-5">
+          <div className="col-md-8">
+            {products.map((product: Product) => (
+              <div className="card mb-3" key={product.id}>
+                <div className="card-body">
+                  <h2>{product.name}</h2>
+                  <p>{product.description}</p>
+                  <p>$ {product.price}</p>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => deleteProducts(product)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+          <div className="col-md-4">
+            <div className="card">
+              <div className="card-body">
+                <h4>Resumen de compra</h4>
+                <p>Productos: {nItem}</p>
+                <p>Total: $ {total} </p>
+                <div className="d-grid">
+                  <button className="btn btn-success" onClick={hidePay}>
+                    Pagar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            className="col-md-6"
+            id="cardPaymentBrick_container"
+            style={{ display: pay ? "block" : "none" }}
+          ></div>
+        </div>
       </div>
-      <div
-        id="cardPaymentBrick_container"
-        style={{ display: pay ? "block" : "none" }}
-      ></div>
-    </div>
+    </>
   );
 }
