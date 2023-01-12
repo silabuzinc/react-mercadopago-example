@@ -34,9 +34,13 @@ export default function Cart() {
   const dataFetchedRef = useRef(false);
 
   useEffect(() => {
-    products.length == 0
-      ? localStorage.removeItem("products_cart")
-      : localStorage.setItem("products_cart", JSON.stringify(products));
+    if(products.length == 0){
+     localStorage.removeItem("products_cart");
+     setPay(false);
+    }
+    else {
+      localStorage.setItem("products_cart", JSON.stringify(products));
+    }
     localStorage.setItem("n_item", JSON.stringify(nItem));
   }, [products]);
 
