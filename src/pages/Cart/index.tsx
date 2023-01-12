@@ -19,14 +19,14 @@ export default function Cart() {
     setProducts(newProducts);
     setNum(nItem - 1);
     Swal.fire({
-      position: 'bottom-end',
-      icon: 'success',
-      title: '¡Eliminado!',
+      position: "bottom-end",
+      icon: "success",
+      title: "¡Eliminado!",
       showConfirmButton: false,
-      background: '#242424',
+      background: "#242424",
       color: "#fff",
-      timer: 1250
-    })
+      timer: 1250,
+    });
   };
   const [pay, setPay] = useState(false);
   const navigate = useNavigate();
@@ -34,11 +34,10 @@ export default function Cart() {
   const dataFetchedRef = useRef(false);
 
   useEffect(() => {
-    if(products.length == 0){
-     localStorage.removeItem("products_cart");
-     setPay(false);
-    }
-    else {
+    if (products.length == 0) {
+      localStorage.removeItem("products_cart");
+      setPay(false);
+    } else {
       localStorage.setItem("products_cart", JSON.stringify(products));
     }
     localStorage.setItem("n_item", JSON.stringify(nItem));
@@ -48,7 +47,7 @@ export default function Cart() {
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
-    const mp = new MercadoPago("TEST-37b0aa8b-93a4-4943-91e4-6a24e05f2fa7", {
+    const mp = new MercadoPago("TEST-fbe9537a-93dc-45e4-a3bb-11bd27ce147d", {
       ale: "es",
     });
     const bricksBuilder = mp.bricks();
@@ -63,7 +62,7 @@ export default function Cart() {
         customization: {
           visual: {
             style: {
-              theme: "default", // | 'dark' | 'bootstrap' | 'flat'
+              theme: "default",
             },
           },
         },
@@ -84,6 +83,7 @@ export default function Cart() {
               })
                 .then((response) => {
                   // recibir el resultado del pago
+                  console.log(response)
                   resolve();
                 })
                 .catch((error) => {
