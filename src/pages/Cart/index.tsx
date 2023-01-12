@@ -71,10 +71,10 @@ export default function Cart() {
           onReady: () => {
             // callback llamado cuando Brick esté listo
           },
-          onSubmit: (cardFormData) => {
+          onSubmit: (cardFormData: any) => {
             //  callback llamado cuando el usuario haga clic en el botón enviar los datos
             //  ejemplo de envío de los datos recolectados por el Brick a su servidor
-            return new Promise((resolve, reject) => {
+            return new Promise<void>((resolve, reject) => {
               fetch("/process_payment", {
                 method: "POST",
                 headers: {
@@ -92,7 +92,7 @@ export default function Cart() {
                 });
             });
           },
-          onError: (error) => {
+          onError: (error: any) => {
             // callback llamado para todos los casos de error de Brick
           },
         },
